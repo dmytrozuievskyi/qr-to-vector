@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR to Vector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,600;0,700;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+<div id="lang-fade-overlay"></div>
+  <div class="header">
+    <img src="icons/header_icon.svg" class="header-logo" alt="logo">
+    <div class="lang-switcher">
+      <button class="lang-btn active" data-lang="en">EN</button>
+      <span>/</span>
+      <button class="lang-btn" data-lang="uk">UK</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="sidebar">
+      <div class="sidebar-stages" id="sidebar-stages">
+
+      <div class="sidebar-block" id="block-0">
+        <div class="section-label" data-i18n="sec_input">Input Image</div>
+        <div class="drop-zone" id="drop-zone">
+          <input type="file" accept="image/*" id="file-input">
+          <p id="drop-label" data-i18n="drop_text">Drop image, click, or paste</p>
+        </div>
+      </div>
+
+      <div class="sidebar-block" id="block-1" style="display:none">
+        <div class="section-label" data-i18n="sec_crop">Crop Image</div>
+        <div class="toggle-row">
+          <span>
+            <span data-i18n="lbl_autofind">Auto-find &amp; warp QR</span>
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-bubble" data-i18n="tip_autofind">Automatically locate and perspective-correct the QR code<span class="tooltip-caret"></span></span>
+            </span>
+          </span>
+          <div class="tog on" id="tog-autowarp"></div>
+        </div>
+        <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+          <button class="btn-process state-process" id="btn-crop-confirm" data-i18n="btn_crop_confirm">Crop &amp; Use</button>
+          <button class="btn-process" style="background: transparent; color: #5C6B8A; border: 1px solid #D1C7B1;" id="btn-crop-skip" data-i18n="btn_crop_skip">Use Full Image</button>
+        </div>
+      </div>
+
+      <div class="sidebar-block" id="block-2" style="display:none">
+        <div class="section-label" data-i18n="sec_matrix">Grid Matrix</div>
+        <div class="toggle-row">
+          <span>
+            <span data-i18n="lbl_manualgrid">Manual Grid Override</span>
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-bubble" data-i18n="tip_manualgrid">Bypass auto-detection and force a specific NxM grid size<span class="tooltip-caret"></span></span>
+            </span>
+          </span>
+          <div class="tog" id="tog-manual-grid"></div>
+        </div>
+        <div class="dim-row" id="manual-grid-inputs" style="opacity:0.4; pointer-events:none;">
+          <div class="dim-input"><label data-i18n="lbl_grid_w">Grid W</label><input type="number" id="in-grid-w" value="21" min="1" max="999"></div>
+          <div class="dim-input"><label data-i18n="lbl_grid_h">Grid H</label><input type="number" id="in-grid-h" value="21" min="1" max="999"></div>
+        </div>
+        
+        <div class="geo-separator"></div>
+        
+        <div class="control-row">
+          <label>
+            <span data-i18n="lbl_centermask">Center Mask</span>
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-bubble" data-i18n="tip_centermask">Masks out the center cells for QRs with embedded logos. Disabled for non-square grids.<span class="tooltip-caret"></span></span>
+            </span>
+            <span class="val-badge" id="lbl-center-mask">0</span>
+          </label>
+          <input type="range" id="sl-center-mask" min="0" max="20" value="0">
+        </div>
+        
+        <button class="btn-process state-process" id="btn-next-matrix" data-i18n="btn_next">Next</button>
+      </div>
+
+      <div class="sidebar-block" id="block-3" style="display:none">
+        <div class="section-label" data-i18n="sec_polygons">Polygons</div>
+
+        <div class="control-row">
+          <label>
+            <span data-i18n="lbl_cellgap">Cell Gap</span>
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-bubble" data-i18n="tip_cellgap">Scales individual cells before merging. Values over 0 create gaps.<span class="tooltip-caret"></span></span>
+            </span>
+            <span class="val-badge" id="lbl-cell-gap">0.00</span>
+          </label>
+          <input type="range" id="sl-cell-gap" min="0" max="100" value="0">
+        </div>
+        <div class="control-row">
+          <label>
+            <span data-i18n="lbl_shrink">Shrink / Expand</span>
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-bubble" data-i18n="tip_shrink">Adjusts thickness of vector polygons for engraving tolerances<span class="tooltip-caret"></span></span>
+            </span>
+            <span class="val-badge" id="lbl-shrink">0.00</span>
+          </label>
+          <input type="range" id="sl-shrink" min="-50" max="50" value="0">
+        </div>
+
+        <div class="geo-separator"></div>
+
+        <div class="toggle-row">
+          <span>
+            <span data-i18n="lbl_cornerstyle">Round/Cut Corners</span>
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-bubble" data-i18n="tip_cornerstyle">Toggle between smooth rounded corners or sharp chamfered cuts<span class="tooltip-caret"></span></span>
+            </span>
+          </span>
+          <div class="tog on" id="tog-corner-style"></div>
+        </div>
+        <div class="control-row">
+          <label>
+            <span data-i18n="lbl_cornerbevel">Corner Bevel</span>
+            <span class="tooltip-wrap">
+              <span class="tooltip-icon">?</span>
+              <span class="tooltip-bubble" data-i18n="tip_cornerbevel">Controls the radius of the corner rounding or chamfer<span class="tooltip-caret"></span></span>
+            </span>
+            <span class="val-badge" id="lbl-bevel">0.05</span>
+          </label>
+          <input type="range" id="sl-bevel" min="0" max="100" value="10">
+        </div>
+        <button class="btn-process state-process" id="btn-next-polygons" data-i18n="btn_next">Next</button>
+      </div>
+
+      <div class="sidebar-block block-export" id="block-4" style="display:none">
+        <div class="section-label" data-i18n="sec_output">Export</div>
+        <div class="dim-row">
+          <div class="dim-input"><label data-i18n="lbl_out_w">Width</label><input type="number" id="out-w" value="50" min="1" max="9999"></div>
+          <div class="dim-input"><label data-i18n="lbl_out_h">Height</label><input type="number" id="out-h" value="50" min="1" max="9999"></div>
+        </div>
+        <div class="dim-row" style="margin-top:4px">
+          <div class="dim-input">
+            <label data-i18n="lbl_out_unit">Unit</label>
+            <select id="out-unit">
+              <option value="mm">mm</option>
+              <option value="in">inch</option>
+              <option value="pt">pt</option>
+              <option value="px">px</option>
+            </select>
+          </div>
+          <div class="dim-input">
+            <label data-i18n="lbl_out_format">Format</label>
+            <select id="out-format">
+              <option value="eps">EPS</option>
+              <option value="svg">SVG</option>
+              <option value="png">PNG</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-process state-export" id="btn-export" data-i18n="btn_export">Export Data</button>
+      </div>
+
+      </div>
+      <div class="sidebar-footer">designed by Dmytro Zuievskyi 2026</div>
+    </div>
+
+    <div class="preview-area">
+      <div class="canvas-wrap" id="canvas-wrap">
+        <canvas id="preview-canvas" width="500" height="500"></canvas>
+      </div>
+
+      <div class="control-bar-area">
+        <div class="stage-bar-wrap">
+          <div class="stage-bar" id="stage-bar">
+            <div class="stage-pill active clickable" id="sp-0" data-i18n="stg_import">import</div>
+            <div class="stage-pill" id="sp-1" data-i18n="stg_crop">crop</div>
+            <div class="stage-pill" id="sp-2" data-i18n="stg_matrix">matrix</div>
+            <div class="stage-pill" id="sp-3" data-i18n="stg_polygons">polygons</div>
+            <div class="stage-pill" id="sp-4" data-i18n="stg_export">export</div>
+          </div>
+        </div>
+
+        <div id="crop-controls" style="display:none"></div>
+
+        <div class="preview-controls" id="preview-controls">
+          <span class="ctrl-label" data-i18n="lbl_diff">Diff</span>
+          <div class="tog" id="tog-diff"></div>
+          <span class="ctrl-label" data-i18n="lbl_opacity">Opacity</span>
+          <input type="range" id="sl-opacity" min="0" max="100" value="0">
+        </div>
+      </div>
+
+      <div id="verification-row" class="verification-row">
+        <div class="v-row-header" id="v-row-header">
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+            <div class="v-status" id="v-status-badge">
+              <div class="icon">i</div>
+              <span data-i18n="lbl_v_waiting">Waiting for generation...</span>
+            </div>
+            <span class="tooltip-wrap">
+              <button id="btn-recreate-data" data-i18n="btn_recreate_data" class="btn-recreate" style="display:none;">Recreate from Data</button>
+              <button id="btn-cancel-recreate" data-i18n="btn_cancel_recreate" class="btn-recreate cancel" style="display:none;">Cancel Recreation</button>
+              <span class="tooltip-icon" id="recreate-tooltip-icon" style="display:none;">?</span>
+              <span class="tooltip-bubble" id="recreate-tooltip-bubble" data-i18n="tip_recreate_data">Regenerates the output vector from the QR's decoded data instead of the traced image — produces a mathematically perfect result when tracing gives a bad match.<span class="tooltip-caret"></span></span>
+            </span>
+          </div>
+          <span class="v-collapse-arrow">▼</span>
+        </div>
+        <div class="v-row-body">
+          <div class="v-links" id="v-links">
+            <div class="link-field">
+              <label data-i18n="lbl_orig_data">Original Data</label>
+              <input type="text" id="in-orig-link" readonly value="—">
+            </div>
+            <div class="link-field">
+              <label data-i18n="lbl_out_data">Output Data</label>
+              <input type="text" id="in-out-link" readonly value="—">
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/clipper-lib@6.4.2/clipper.js"></script>
+
+
+<script src="js/i18n.js"></script>
+<script src="js/globals.js"></script>
+<script src="js/math.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/imageUtils.js"></script>
+<script src="js/vectorizer.js"></script>
+<script src="js/export.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  
+  document.getElementById('v-row-header').addEventListener('click', () => {
+    document.getElementById('verification-row').classList.toggle('expanded');
+  });
+
+  
+  document.querySelectorAll('.tooltip-icon').forEach(icon => {
+    icon.addEventListener('mouseenter', () => {
+      const bubble = icon.nextElementSibling;
+      if (!bubble || !bubble.classList.contains('tooltip-bubble')) return;
+      const r = icon.getBoundingClientRect();
+      const iconCenterX = r.left + r.width / 2;
+      
+      const bubbleLeft = Math.min(Math.max(iconCenterX - 21, 12), window.innerWidth - 330);
+      bubble.style.left = bubbleLeft + 'px';
+      bubble.style.top = '-9999px'; 
+      requestAnimationFrame(() => {
+        bubble.style.top = (r.top - bubble.offsetHeight - 12) + 'px';
+        
+        const caret = bubble.querySelector('.tooltip-caret');
+        if (caret) caret.style.left = Math.round(iconCenterX - bubbleLeft - 7.5) + 'px';
+      });
+    });
+  });
+</script>
+</body>
+</html>
