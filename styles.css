@@ -46,7 +46,7 @@ body { font-family: 'Inter', sans-serif; color: #1A2B4C; display: flex; flex-dir
 .tog::after { content: ''; position: absolute; top: 3px; left: 3px; width: 16.5px; height: 16.5px; background: #F3EFE6; border-radius: 50%; transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
 .tog.on::after { transform: translateX(19.5px); }
 
-.control-row { display: flex; flex-direction: column; gap: 22px; margin-bottom: 9px; }
+.control-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
 .control-row:last-of-type { margin-bottom: 0; }
 .control-row label { display: flex; align-items: center; font-size: 17.25px; color: #3A4B6C; gap: 9px; }
 .control-row label > span:first-child { display: inline-flex; align-items: center; flex-shrink: 1; min-width: 0; }
@@ -84,7 +84,7 @@ select { cursor: pointer; }
 
 .control-bar-area { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; flex-shrink: 0; min-height: 51px; }
 
-.stage-bar-wrap { flex: 0 1 auto; max-width: 100%; display: flex; background: rgba(0,0,0,.04); border-radius: 10.5px; padding: 4.5px; min-width: 0; }
+.stage-bar-wrap { flex: 1 1 auto; max-width: 100%; display: flex; background: rgba(0,0,0,.04); border-radius: 10.5px; padding: 4.5px; min-width: 0; }
 .stage-bar { width: 100%; display: flex; gap: 4.5px; align-items: center; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; justify-content: flex-start; }
 .stage-bar::-webkit-scrollbar { display: none; }
 
@@ -162,6 +162,11 @@ select { cursor: pointer; }
 .btn-recreate:active { background: rgba(30,58,110,.2); }
 
 .stage-pill {
+  flex: 1 1 auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
   font-size: 15.75px;
   font-weight: 500; 
   text-transform: uppercase;
@@ -203,8 +208,8 @@ select { cursor: pointer; }
   opacity: 1;
 }
 
-.sidebar-block > .btn-process,
-.sidebar-block > div > .btn-process { margin-top: 9px; }
+.sidebar-block > .btn-process { margin-top: 24px; }
+.sidebar-block > div > .btn-process { margin-top: 0; }
 
 @media (max-width: 1200px) and (orientation: portrait) {
   #app { height: auto; min-height: 100vh; overflow: visible; max-width: 800px !important; margin: 0 auto; }
@@ -220,7 +225,7 @@ select { cursor: pointer; }
   #sidebar-stages { order: 3; width: 100%; position: relative; }
   
   .preview-controls { order: 4; width: 100%; justify-content: flex-start; }
-  .stage-pill { flex: 1 0 auto; display: flex; justify-content: center; align-items: center; text-align: center; white-space: nowrap; }
+  .stage-pill { flex: 1 0 auto; }
   
   #verification-row { order: 5; width: 100%; margin-bottom: 0; }
   .sidebar-footer { order: 6; text-align: center; width: 100%; padding-top: 0; margin-top: 0; }
